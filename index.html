@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Activity Manager</title>
+    <style>
+        /* CSS styles are included here, as provided in the prompt */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-color: #2563eb; --secondary-color: #64748b; --success-color: #10b981;
+            --warning-color: #f59e0b; --error-color: #ef4444; --bg-color: #f8fafc;
+            --card-color: #ffffff; --text-color: #1e293b; --border-color: #e2e8f0;
+        }
+        [data-theme="dark"] {
+            --bg-color: #0f172a; --card-color: #1e293b; --text-color: #f1f5f9; --border-color: #334155;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: var(--bg-color); color: var(--text-color); line-height: 1.6; transition: all 0.3s ease; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { background: var(--card-color); padding: 1rem 2rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 999; }
+        .logo { font-size: 1.5rem; font-weight: bold; color: var(--primary-color); }
+        .header-actions { display: flex; gap: 1rem; align-items: center; }
+        .btn { padding: 0.5rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; }
+        .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.8rem; }
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-secondary { background: var(--secondary-color); color: white; }
+        .btn-success { background: var(--success-color); color: white; }
+        .btn-warning { background: var(--warning-color); color: white; }
+        .btn-danger { background: var(--error-color); color: white; }
+        .btn-outline { background: transparent; color: var(--primary-color); border: 1px solid var(--primary-color); }
+        .card { background: var(--card-color); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 1px solid var(--border-color); }
+        .card-header { margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); }
+        .card-title { font-size: 1.25rem; font-weight: 600; color: var(--text-color); }
+        .form-group { margin-bottom: 1rem; }
+        .form-label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-color); }
+        .form-control { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.9rem; background: var(--bg-color); color: var(--text-color); transition: border-color 0.2s ease; }
+        .form-control:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .grid { display: grid; gap: 1.5rem; }
+        .grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: var(--card-color); padding: 1.5rem; border-radius: 8px; text-align: center; border: 1px solid var(--border-color); }
+        .stat-number { font-size: 2rem; font-weight: bold; color: var(--primary-color); }
+        .stat-label { color: var(--secondary-color); font-size: 0.9rem; }
+        .table-responsive { overflow-x: auto; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .table th, .table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
+        .table th { background: var(--bg-color); font-weight: 600; }
+        .badge { padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.8rem; font-weight: 500; text-transform: capitalize;}
+        .badge-pending { background: #fef3c7; color: #92400e; }
+        .badge-approved { background: #d1fae5; color: #065f46; }
+        .badge-denied { background: #fee2e2; color: #991b1b; }
+        .badge-office { background: #e0e7ff; color: #3730a3;}
+        .badge-marketing { background: #fef3c7; color: #92400e;}
+        .badge-technical { background: #d1fae5; color: #065f46;}
+        .badge-admin { background-color: var(--primary-color); color: white; }
+        .badge-employee { background-color: var(--secondary-color); color: white; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: var(--card-color); padding: 2rem; border-radius: 8px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .close { font-size: 1.5rem; cursor: pointer; color: var(--secondary-color); }
+        .hidden { display: none !important; }
+        .loading { text-align: center; padding: 2rem; color: var(--secondary-color); }
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; }
+        .toast { padding: 1rem; border-radius: 6px; margin-bottom: 1rem; min-width: 250px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); opacity: 0; transform: translateY(-20px); transition: all 0.3s ease; }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast-success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .toast-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .nav-tabs { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .nav-tab { padding: 0.75rem 1.5rem; background: transparent; border: none; cursor: pointer; color: var(--secondary-color); border-bottom: 2px solid transparent; transition: all 0.2s ease; font-size: 0.9rem; }
+        .nav-tab.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
+        .theme-toggle { background: none; border: none; color: var(--text-color); cursor: pointer; font-size: 1.2rem; padding: 0.5rem; border-radius: 6px; transition: background-color 0.2s ease; }
+        .theme-toggle:hover { background-color: var(--bg-color); }
+        .filters { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+        .check-in-out { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: center; }
+        .status-indicator { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 0.5rem; }
+        .status-online { background: var(--success-color); }
+        .status-offline { background: var(--secondary-color); }
+        @media (max-width: 768px) {
+            .header { flex-direction: column; gap: 1rem; align-items: flex-start; }
+            .header-actions { width: 100%; justify-content: space-between; }
+            .container { padding: 10px; }
+            .grid-2, .stats-grid { grid-template-columns: 1fr; }
+            .filters, .check-in-out { flex-direction: column; gap: 0.5rem; align-items: stretch; }
+            .nav-tabs { font-size: 0.8rem; }
+            .nav-tab { padding: 0.5rem 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+    <div id="toast-container"></div>
+    
+    <!-- Login Screen -->
+    <div id="loginScreen" class="container">
+        <div class="card" style="max-width: 400px; margin: 5rem auto;">
+            <div class="card-header"><h2 class="card-title">Company Activity Manager</h2></div>
+            <form id="loginForm">
+                <div class="form-group"><label class="form-label" for="email">Email</label><input type="email" id="email" class="form-control" required></div>
+                <div class="form-group"><label class="form-label" for="password">Password</label><input type="password" id="password" class="form-control" required></div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" class="hidden">
+        <header class="header">
+            <div class="logo">Activity Manager</div>
+            <div class="header-actions">
+                <span id="userWelcome">Welcome, User</span>
+                <button class="theme-toggle" id="themeToggle">🌙</button>
+                <button class="btn btn-outline" id="logoutBtn">Logout</button>
+            </div>
+        </header>
+
+        <!-- Employee Dashboard -->
+        <div id="employeeDashboard" class="container hidden">
+            <div class="nav-tabs">
+                <button class="nav-tab active" data-tab="employee-overview">Overview</button>
+                <button class="nav-tab" data-tab="employee-reports">Reports</button>
+                <button class="nav-tab" data-tab="employee-requests">Requests</button>
+                <button class="nav-tab" data-tab="employee-trips">Trips</button>
+            </div>
+            <div id="employee-overview" class="tab-content">
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title">Attendance</h3></div>
+                    <div class="check-in-out">
+                        <button class="btn btn-success" id="checkInBtn">Check In</button>
+                        <button class="btn btn-warning" id="checkOutBtn">Check Out</button>
+                        <div id="attendanceStatus" style="font-weight: 500;"></div>
+                    </div>
+                    <div id="employeeAttendanceList" class="loading"></div>
+                </div>
+            </div>
+            <div id="employee-reports" class="tab-content hidden">
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title">Submit Daily Report</h3></div>
+                    <form id="reportForm">
+                        <div class="grid grid-2">
+                            <div class="form-group"><label class="form-label" for="reportDate">Date</label><input type="date" id="reportDate" class="form-control" required></div>
+                            <div class="form-group"><label class="form-label" for="activityType">Activity Type</label><select id="activityType" class="form-control" required><option value="">Select Activity</option><option value="Office">Office</option><option value="Marketing">Marketing</option><option value="Technical">Technical</option></select></div>
+                        </div>
+                        <div class="form-group"><label class="form-label" for="description">Description</label><textarea id="description" class="form-control" rows="4" required></textarea></div>
+                        <div class="form-group"><label class="form-label" for="photoUrl">Optional Photo (Google Drive Link)</label><input type="text" id="photoUrl" class="form-control" placeholder="Enter public Google Drive link"></div>
+                        <button type="submit" class="btn btn-primary">Submit Report</button>
+                    </form>
+                </div>
+                <div class="card"><div class="card-header"><h3 class="card-title">My Reports</h3></div><div id="employeeReportsList" class="loading"></div></div>
+            </div>
+            <div id="employee-requests" class="tab-content hidden">
+                 <div class="card">
+                    <div class="card-header"><h3 class="card-title">Make a Request</h3></div>
+                    <form id="requestForm">
+                        <div class="grid grid-2">
+                            <div class="form-group"><label class="form-label" for="requestType">Request Type</label><select id="requestType" class="form-control" required><option value="">Select Type</option><option value="Transportation">Transportation Money</option><option value="Food">Food Money</option><option value="Off Day">Off Day</option><option value="Other">Other</option></select></div>
+                            <div class="form-group"><label class="form-label" for="requestAmount">Amount (if applicable)</label><input type="number" id="requestAmount" class="form-control" min="0" step="0.01"></div>
+                        </div>
+                        <div class="form-group"><label class="form-label" for="requestDescription">Description / Reason</label><textarea id="requestDescription" class="form-control" rows="3" required></textarea></div>
+                        <button type="submit" class="btn btn-primary">Submit Request</button>
+                    </form>
+                </div>
+                <div class="card"><div class="card-header"><h3 class="card-title">My Requests</h3></div><div id="employeeRequestsList" class="loading"></div></div>
+            </div>
+            <div id="employee-trips" class="tab-content hidden">
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title">Schedule a Trip</h3></div>
+                    <form id="tripForm">
+                        <div class="grid grid-2">
+                            <div class="form-group"><label class="form-label" for="tripDestination">Destination</label><input type="text" id="tripDestination" class="form-control" required></div>
+                            <div class="form-group"><label class="form-label" for="tripDate">Date</label><input type="date" id="tripDate" class="form-control" required></div>
+                        </div>
+                        <div class="form-group"><label class="form-label" for="tripReason">Reason (Marketing/Technical)</label><textarea id="tripReason" class="form-control" rows="3" required></textarea></div>
+                        <button type="submit" class="btn btn-primary">Schedule Trip</button>
+                    </form>
+                </div>
+                <div class="card"><div class="card-header"><h3 class="card-title">My Trips</h3></div><div id="employeeTripsList" class="loading"></div></div>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="adminDashboard" class="container hidden">
+            <div class="nav-tabs">
+                <button class="nav-tab active" data-tab="admin-overview">Overview</button>
+                <button class="nav-tab" data-tab="admin-reports">Reports</button>
+                <button class="nav-tab" data-tab="admin-requests">Requests</button>
+                <button class="nav-tab" data-tab="admin-trips">Trips</button>
+                <button class="nav-tab" data-tab="admin-attendance">Attendance</button>
+                <button class="nav-tab" data-tab="admin-users">Users</button>
+            </div>
+            <div id="admin-overview" class="tab-content">
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-number" id="totalReports">0</div><div class="stat-label">Total Reports</div></div>
+                    <div class="stat-card"><div class="stat-number" id="pendingRequests">0</div><div class="stat-label">Pending Requests</div></div>
+                    <div class="stat-card"><div class="stat-number" id="pendingTrips">0</div><div class="stat-label">Pending Trips</div></div>
+                    <div class="stat-card"><div class="stat-number" id="totalEmployees">0</div><div class="stat-label">Total Employees</div></div>
+                </div>
+                 <div class="card">
+                    <div class="card-header"><h3 class="card-title">Announcements</h3></div>
+                    <form id="announcementForm">
+                        <div class="form-group"><label class="form-label" for="announcementText">Send an announcement to all employees (future feature)</label><textarea id="announcementText" class="form-control" rows="3" required></textarea></div>
+                        <button type="submit" class="btn btn-primary">Send Announcement</button>
+                    </form>
+                </div>
+            </div>
+            <div id="admin-reports" class="tab-content hidden"><div class="card"><div class="card-header"><h3 class="card-title">All Reports</h3></div><div class="filters"><input type="text" id="reportSearch" class="form-control" placeholder="Search by employee or description..." style="max-width: 300px;"><button class="btn btn-secondary" id="exportReportsBtn">Export CSV</button></div><div id="allReportsList" class="loading"></div></div></div>
+            <div id="admin-requests" class="tab-content hidden"><div class="card"><div class="card-header"><h3 class="card-title">All Requests</h3></div><div id="allRequestsList" class="loading"></div></div></div>
+            <div id="admin-trips" class="tab-content hidden"><div class="card"><div class="card-header"><h3 class="card-title">All Trips</h3></div><div id="allTripsList" class="loading"></div></div></div>
+            <div id="admin-attendance" class="tab-content hidden"><div class="card"><div class="card-header"><h3 class="card-title">Attendance Overview</h3></div><div class="filters"><input type="date" id="attendanceDateFilter" class="form-control" style="max-width: 200px;"><button class="btn btn-secondary" id="exportAttendanceBtn">Export CSV</button></div><div id="allAttendanceList" class="loading"></div></div></div>
+            <div id="admin-users" class="tab-content hidden"><div class="card"><div class="card-header"><h3 class="card-title">User Management</h3></div><button class="btn btn-primary" id="addUserBtn">Add New User</button><div id="usersList" class="loading"></div></div></div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="userModal" class="modal"><div class="modal-content"><div class="modal-header"><h3 id="userModalTitle">Add User</h3><span class="close" onclick="closeModal('userModal')">×</span></div><form id="userForm"><input type="hidden" id="userOriginalEmail"><div class="form-group"><label class="form-label" for="userName">Name</label><input type="text" id="userName" class="form-control" required></div><div class="form-group"><label class="form-label" for="userEmail">Email</label><input type="email" id="userEmail" class="form-control" required></div><div class="form-group"><label class="form-label" for="userPassword">Password (leave blank to not change)</label><input type="password" id="userPassword" class="form-control"></div><div class="form-group"><label class="form-label" for="userRole">Role</label><select id="userRole" class="form-control" required><option value="Employee">Employee</option><option value="Admin">Admin</option></select></div><button type="submit" class="btn btn-primary">Save User</button></form></div></div>
+
+    <script>
+        // CONFIGURATION
+        const CONFIG = {
+            API_URL: 'https://script.google.com/macros/s/AKfycbxb-d10G6TUAUHozY4Bdr0UAUxZSN6HvUYONWMt4AcJrWZpVtOvZBHTUqlvrbDxFgrm/exec' // <-- IMPORTANT: PASTE YOUR GOOGLE APPS SCRIPT URL HERE
+        };
+
+        // GLOBAL STATE
+        let currentUser = null;
+        let currentTab = 'overview';
+        let allDataCache = {}; // Cache data for admin filtering
+
+        // --- CORE APP LOGIC ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initApp();
+            setupEventListeners();
+        });
+
+        function initApp() {
+            const savedUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (savedUser) {
+                currentUser = savedUser;
+                showDashboard();
+            } else {
+                document.getElementById('loginScreen').classList.remove('hidden');
+            }
+
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.getElementById('themeToggle').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('reportDate').value = today;
+            document.getElementById('tripDate').value = today;
+            document.getElementById('attendanceDateFilter').value = today;
+        }
+
+        // --- API HELPER ---
+        async function apiCall(action, data = {}) {
+            // Find a button that might be clicked to show a loading state, if any.
+            const button = document.querySelector('button[type="submit"]:not(:disabled)');
+            if (button) button.disabled = true;
+
+            try {
+                const response = await fetch(CONFIG.API_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    cache: 'no-cache',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action, data }),
+                    // This line is crucial for handling Google Script's behavior
+                    redirect: 'follow' 
+                });
+
+                // This handles cases where the script might return an error page instead of JSON
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                // Now, try to parse the JSON from the successful response
+                return await response.json();
+
+            } catch (error) {
+                console.error('API Call Error:', error);
+                showToast(`Network or API Error: ${error.message}`, 'error');
+                // Return a standard error format for the rest of the app to handle
+                return { success: false, message: error.message };
+            } finally {
+                // Re-enable the button after the call is complete
+                if (button) button.disabled = false;
+            }
+        }
+        // --- AUTHENTICATION ---
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const response = await apiCall('login', { email, password });
+
+            if (response.success && response.user) {
+                currentUser = response.user;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                showDashboard();
+            } else {
+                showToast(response.message || 'Login failed', 'error');
+            }
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('mainApp').classList.add('hidden');
+            document.getElementById('loginForm').reset();
+        }
+
+        function showDashboard() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            document.getElementById('userWelcome').textContent = `Welcome, ${currentUser.name}`;
+            
+            if (currentUser.role === 'Admin') {
+                document.getElementById('adminDashboard').classList.remove('hidden');
+                document.getElementById('employeeDashboard').classList.add('hidden');
+                switchTab('admin-overview');
+                loadAdminData();
+            } else {
+                document.getElementById('employeeDashboard').classList.remove('hidden');
+                document.getElementById('adminDashboard').classList.add('hidden');
+                switchTab('employee-overview');
+                loadEmployeeData();
+            }
+        }
+
+        // --- UI & NAVIGATION ---
+        function switchTab(tabName) {
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+            document.getElementById(tabName).classList.remove('hidden');
+            
+            currentTab = tabName;
+            loadDataForTab(tabName);
+        }
+
+        function loadDataForTab(tabName) {
+            const loadActions = {
+                'employee-overview': loadEmployeeData,
+                'employee-reports': () => loadAndRenderData('getReports', { employee: currentUser.email }, 'employeeReportsList', createReportsTable),
+                'employee-requests': () => loadAndRenderData('getRequests', { employee: currentUser.email }, 'employeeRequestsList', createRequestsTable),
+                'employee-trips': () => loadAndRenderData('getTrips', { employee: currentUser.email }, 'employeeTripsList', createTripsTable),
+                'admin-overview': loadAdminData,
+                'admin-reports': () => loadAndRenderData('getReports', {}, 'allReportsList', createReportsTable, 'reports'),
+                'admin-requests': () => loadAndRenderData('getRequests', {}, 'allRequestsList', createRequestsTable, 'requests'),
+                'admin-trips': () => loadAndRenderData('getTrips', {}, 'allTripsList', createTripsTable, 'trips'),
+                'admin-attendance': () => loadAndRenderData('getAttendance', {}, 'allAttendanceList', createAttendanceTable, 'attendance'),
+                'admin-users': () => loadAndRenderData('getUsers', {}, 'usersList', createUsersTable, 'users'),
+            };
+            if (loadActions[tabName]) loadActions[tabName]();
+        }
+
+        async function loadAndRenderData(action, params, elementId, renderer, cacheKey = null) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = `<div class="loading">Loading...</div>`;
+            const response = await apiCall(action, params);
+            if (response.success) {
+                if (cacheKey) allDataCache[cacheKey] = response.data;
+                container.innerHTML = renderer(response.data);
+            } else {
+                container.innerHTML = `<p class="error">Failed to load data.</p>`;
+            }
+        }
+        
+        // --- DATA HANDLING (EMPLOYEE) ---
+        function loadEmployeeData() {
+            loadAndRenderData('getAttendance', { employee: currentUser.email }, 'employeeAttendanceList', createAttendanceTable);
+            updateAttendanceStatus();
+        }
+
+        async function updateAttendanceStatus() {
+            const response = await apiCall('getAttendance', { employee: currentUser.email, date: new Date().toISOString().split('T')[0] });
+            const statusEl = document.getElementById('attendanceStatus');
+            if (response.success && response.data.length > 0) {
+                const today = response.data[0];
+                if (today.checkOut) {
+                    statusEl.innerHTML = `<span class="status-indicator status-offline"></span>Status: Checked Out at ${today.checkOut}`;
+                } else if (today.checkIn) {
+                    statusEl.innerHTML = `<span class="status-indicator status-online"></span>Status: Checked In at ${today.checkIn}`;
+                }
+            } else {
+                statusEl.innerHTML = `<span class="status-indicator status-offline"></span>Status: Not Checked In`;
+            }
+        }
+
+        async function handleFormSubmit(e, action, formDataExtractor, successCallback) {
+            e.preventDefault();
+            const data = formDataExtractor(e.target);
+            const response = await apiCall(action, data);
+            if (response.success) {
+                showToast(`${action.replace('add', '')} submitted successfully`, 'success');
+                e.target.reset();
+                if (successCallback) successCallback();
+            } else {
+                showToast(response.message || 'Submission failed', 'error');
+            }
+        }
+
+        // --- DATA HANDLING (ADMIN) ---
+        async function loadAdminData() {
+            const [reports, requests, trips, users] = await Promise.all([
+                apiCall('getReports', {}),
+                apiCall('getRequests', {}),
+                apiCall('getTrips', {}),
+                apiCall('getUsers', {})
+            ]);
+
+            document.getElementById('totalReports').textContent = reports.data?.length || 0;
+            document.getElementById('pendingRequests').textContent = requests.data?.filter(r => r.status === 'Pending').length || 0;
+            document.getElementById('pendingTrips').textContent = trips.data?.filter(t => t.status === 'Pending').length || 0;
+            document.getElementById('totalEmployees').textContent = users.data?.filter(u => u.role === 'Employee').length || 0;
+        }
+
+        async function handleStatusUpdate(sheetType, id, status) {
+            const action = sheetType === 'requests' ? 'updateRequestStatus' : 'updateTripStatus';
+            const response = await apiCall(action, { id, status });
+            if(response.success) {
+                showToast(`Status updated to ${status}`, 'success');
+                loadDataForTab(currentTab);
+            } else {
+                showToast('Failed to update status', 'error');
+            }
+        }
+
+        async function handleUserSave(e) {
+            e.preventDefault();
+            const data = {
+                name: document.getElementById('userName').value,
+                email: document.getElementById('userEmail').value,
+                password: document.getElementById('userPassword').value,
+                role: document.getElementById('userRole').value,
+                originalEmail: document.getElementById('userOriginalEmail').value,
+            };
+            const response = await apiCall('saveUser', data);
+            if(response.success) {
+                showToast('User saved successfully', 'success');
+                closeModal('userModal');
+                loadDataForTab('admin-users');
+                loadAdminData();
+            } else {
+                showToast(response.message || 'Failed to save user', 'error');
+            }
+        }
+
+        async function deleteUser(email) {
+            if (confirm(`Are you sure you want to delete user ${email}? This cannot be undone.`)) {
+                const response = await apiCall('deleteUser', { email });
+                if (response.success) {
+                    showToast('User deleted successfully', 'success');
+                    loadDataForTab('admin-users');
+                    loadAdminData();
+                } else {
+                    showToast(response.message || 'Failed to delete user', 'error');
+                }
+            }
+        }
+        
+        // --- TABLE RENDERERS ---
+        const createTable = (headers, data, rowRenderer) => {
+            if (!data || data.length === 0) return `<p>No records found.</p>`;
+            return `<div class="table-responsive"><table class="table">
+                <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+                <tbody>${data.map(rowRenderer).join('')}</tbody>
+            </table></div>`;
+        };
+
+        const formatDate = (dateString) => dateString ? new Date(dateString).toLocaleDateString() : 'N/A';
+
+        createReportsTable = (data) => createTable(
+            ['Date', 'Employee', 'Type', 'Description', 'Photo'],
+            data,
+            item => `<tr>
+                <td>${formatDate(item.date)}</td><td>${item.employee}</td>
+                <td><span class="badge badge-${item.activityType.toLowerCase()}">${item.activityType}</span></td>
+                <td style="white-space:normal;">${item.description}</td>
+                <td>${item.photoURL ? `<a href="${item.photoURL}" target="_blank">View</a>` : 'None'}</td>
+            </tr>`
+        );
+        
+        createRequestsTable = (data) => createTable(
+            ['Date', 'Employee', 'Type', 'Amount', 'Status', 'Actions'],
+            data,
+            item => `<tr>
+                <td>${formatDate(item.timestamp)}</td><td>${item.employee}</td><td>${item.type}</td>
+                <td>${item.amount || 'N/A'}</td>
+                <td><span class="badge badge-${item.status.toLowerCase()}">${item.status}</span></td>
+                <td>${currentUser.role === 'Admin' && item.status === 'Pending' ? 
+                    `<button class="btn btn-sm btn-success" onclick="handleStatusUpdate('requests', ${item.id}, 'Approved')">Approve</button>
+                     <button class="btn btn-sm btn-danger" onclick="handleStatusUpdate('requests', ${item.id}, 'Denied')">Deny</button>` : 'N/A'}
+                </td>
+            </tr>`
+        );
+
+        createTripsTable = (data) => createTable(
+            ['Date', 'Employee', 'Destination', 'Status', 'Actions'],
+            data,
+            item => `<tr>
+                <td>${formatDate(item.date)}</td><td>${item.employee}</td><td>${item.destination}</td>
+                <td><span class="badge badge-${item.status.toLowerCase()}">${item.status}</span></td>
+                <td>${currentUser.role === 'Admin' && item.status === 'Pending' ? 
+                    `<button class="btn btn-sm btn-success" onclick="handleStatusUpdate('trips', ${item.id}, 'Approved')">Approve</button>
+                     <button class="btn btn-sm btn-danger" onclick="handleStatusUpdate('trips', ${item.id}, 'Denied')">Deny</button>` : 'N/A'}
+                </td>
+            </tr>`
+        );
+
+        createAttendanceTable = (data) => createTable(
+            ['Date', 'Employee', 'Check In', 'Check Out', 'Status'],
+            data,
+            item => `<tr>
+                <td>${formatDate(item.date)}</td><td>${item.employee}</td>
+                <td>${item.checkin || 'N/A'}</td><td>${item.checkout || 'N/A'}</td>
+                <td><span class="badge badge-${(item.status || 'absent').toLowerCase()}">${item.status || 'Absent'}</span></td>
+            </tr>`
+        );
+
+        createUsersTable = (data) => createTable(
+            ['Name', 'Email', 'Role', 'Actions'],
+            data,
+            item => `<tr>
+                <td>${item.name}</td><td>${item.email}</td>
+                <td><span class="badge badge-${item.role.toLowerCase()}">${item.role}</span></td>
+                <td>
+                    <button class="btn btn-sm btn-secondary" onclick="showUserModal('${item.email}')">Edit</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteUser('${item.email}')">Delete</button>
+                </td>
+            </tr>`
+        );
+
+        // --- EVENT LISTENERS ---
+        function setupEventListeners() {
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.addEventListener('click', (e) => switchTab(e.target.dataset.tab)));
+            
+            // Forms
+            document.getElementById('reportForm').addEventListener('submit', (e) => handleFormSubmit(e, 'addReport', 
+                () => ({ date: document.getElementById('reportDate').value, employee: currentUser.email, activityType: document.getElementById('activityType').value, description: document.getElementById('description').value, photoURL: document.getElementById('photoUrl').value }),
+                () => { document.getElementById('reportDate').value = new Date().toISOString().split('T')[0]; loadDataForTab('employee-reports'); }
+            ));
+            document.getElementById('requestForm').addEventListener('submit', (e) => handleFormSubmit(e, 'addRequest', 
+                () => ({ employee: currentUser.email, type: document.getElementById('requestType').value, amount: document.getElementById('requestAmount').value, description: document.getElementById('requestDescription').value }),
+                () => loadDataForTab('employee-requests')
+            ));
+            document.getElementById('tripForm').addEventListener('submit', (e) => handleFormSubmit(e, 'addTrip', 
+                () => ({ employee: currentUser.email, destination: document.getElementById('tripDestination').value, date: document.getElementById('tripDate').value, reason: document.getElementById('tripReason').value }),
+                () => { document.getElementById('tripDate').value = new Date().toISOString().split('T')[0]; loadDataForTab('employee-trips'); }
+            ));
+            document.getElementById('announcementForm').addEventListener('submit', (e) => { e.preventDefault(); showToast('Announcements feature coming soon!', 'error'); });
+            
+            // Attendance
+            document.getElementById('checkInBtn').addEventListener('click', async () => {
+                const response = await apiCall('checkIn', { employee: currentUser.email, date: new Date().toISOString().split('T')[0], checkIn: new Date().toTimeString().split(' ')[0] });
+                if (response.success) { showToast('Checked in successfully', 'success'); updateAttendanceStatus(); } else { showToast(response.message, 'error'); }
+            });
+            document.getElementById('checkOutBtn').addEventListener('click', async () => {
+                const response = await apiCall('checkOut', { employee: currentUser.email, date: new Date().toISOString().split('T')[0], checkOut: new Date().toTimeString().split(' ')[0] });
+                if (response.success) { showToast('Checked out successfully', 'success'); updateAttendanceStatus(); } else { showToast(response.message, 'error'); }
+            });
+            
+            // Admin User Management
+            document.getElementById('addUserBtn').addEventListener('click', () => showUserModal());
+            document.getElementById('userForm').addEventListener('submit', handleUserSave);
+
+            // Filtering & Exporting
+            document.getElementById('reportSearch').addEventListener('input', () => filterTable('reports', 'reportSearch', ['employee', 'description'], 'allReportsList', createReportsTable));
+            document.getElementById('attendanceDateFilter').addEventListener('input', () => filterTable('attendance', 'attendanceDateFilter', ['date'], 'allAttendanceList', createAttendanceTable));
+            document.getElementById('exportReportsBtn').addEventListener('click', () => exportToCSV(allDataCache.reports, 'reports.csv'));
+            document.getElementById('exportAttendanceBtn').addEventListener('click', () => exportToCSV(allDataCache.attendance, 'attendance.csv'));
+        }
+
+        // --- UTILITIES ---
+        function filterTable(cacheKey, inputId, searchKeys, elementId, renderer) {
+            const searchTerm = document.getElementById(inputId).value.toLowerCase();
+            const data = allDataCache[cacheKey] || [];
+            const filteredData = data.filter(item => {
+                return searchKeys.some(key => item[key] && item[key].toString().toLowerCase().includes(searchTerm));
+            });
+            document.getElementById(elementId).innerHTML = renderer(filteredData);
+        }
+
+        function exportToCSV(data, filename) {
+            if (!data || data.length === 0) {
+                showToast('No data to export', 'error');
+                return;
+            }
+            const headers = Object.keys(data[0]);
+            const csvRows = [headers.join(',')];
+            data.forEach(row => {
+                const values = headers.map(header => {
+                    const escaped = ('' + row[header]).replace(/"/g, '""');
+                    return `"${escaped}"`;
+                });
+                csvRows.push(values.join(','));
+            });
+            const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('hidden', '');
+            a.setAttribute('href', url);
+            a.setAttribute('download', filename);
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            document.getElementById('themeToggle').textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        }
+        
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        function showUserModal(email = null) {
+            const form = document.getElementById('userForm');
+            form.reset();
+            const modalTitle = document.getElementById('userModalTitle');
+            
+            if (email) {
+                modalTitle.textContent = 'Edit User';
+                const user = (allDataCache.users || []).find(u => u.email === email);
+                if (user) {
+                    document.getElementById('userName').value = user.name;
+                    document.getElementById('userEmail').value = user.email;
+                    document.getElementById('userRole').value = user.role;
+                    document.getElementById('userOriginalEmail').value = user.email;
+                    document.getElementById('userEmail').readOnly = true; // Don't allow email change for simplicity
+                }
+            } else {
+                modalTitle.textContent = 'Add User';
+                document.getElementById('userEmail').readOnly = false;
+                document.getElementById('userOriginalEmail').value = '';
+            }
+            showModal('userModal');
+        }
+
+    </script>
+</body>
+</html>
