@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Company Activity Manager</title>
-    <!-- All CSS from before remains the same, so it's omitted here for brevity -->
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -74,14 +73,126 @@
 </head>
 <body>
     <div id="toast-container"></div>
-    <!-- The rest of your HTML structure remains exactly the same as the last version -->
-    <div id="loginScreen" class="container"><div class="card" style="max-width: 400px; margin: 5rem auto;"><div class="card-header"><h2 class="card-title">Company Activity Manager</h2></div><form id="loginForm"><div class="form-group"><label class="form-label" for="email">Email</label><input type="email" id="email" class="form-control" required></div><div class="form-group"><label class="form-label" for="password">Password</label><input type="password" id="password" class="form-control" required></div><button type="submit" class="btn btn-primary" style="width: 100%;">Login</button></form></div></div>
-    <div id="mainApp" class="hidden"><header class="header"><div class="logo">Activity Manager</div><div class="header-actions"><span id="userWelcome">Welcome, User</span><button class="theme-toggle" id="themeToggle">🌙</button><button class="btn btn-outline" id="logoutBtn">Logout</button></div></header><div id="employeeDashboard" class="container hidden"><div class="nav-tabs"><button class="nav-tab active" data-tab="employee-overview">Overview</button><button class="nav-tab" data-tab="employee-reports">Reports</button><button class="nav-tab" data-tab="employee-requests">Requests</button><button class="nav-tab" data-tab="employee-trips">Trips</button></div><div id="employee-overview" class="tab-content"><div class="card"><div class="card-header"><h3 class="card-title">Attendance</h3></div><div class="check-in-out"><button class="btn btn-success" id="checkInBtn">Check In</button><button class="btn btn-warning" id="checkOutBtn">Check Out</button><div id="attendanceStatus" style="font-weight: 500;"></div></div><div id="employeeAttendanceList" class="loading"></div></div></div><div id="employee-reports" class="tab-content hidden"><div class="card"><div class="card-header"><h3 class="card-title">Submit Daily Report</h3></div><form id="reportForm"><div class="grid grid-2"><div class="form-group"><label class="form-label" for="reportDate">Date</label><input type="date" id="reportDate" class="form-control" required></div><div class="form-group"><label class="form-label" for="activityType">Activity Type</label><select id="activityType" class="form-control" required><option value="">Select Activity</option><option value="Office">Office</option><option value="Marketing">Marketing</option><option value="Technical">Technical</option></select></div></div><div class="form-group"><label class="form-label" for="description">Description</label><textarea id="description" class="form-control" rows="4" required></textarea></div><div class="form-group"><label class="form-label" for="photoUrl">Optional Photo (Google Drive Link)</label><input type="text" id="photoUrl" class="form-control" placeholder="Enter public Google Drive link"></div><button type="submit" class="btn btn-primary">Submit Report</button></form></div><div class="card"><div class="card-header"><h3 class="card-title">My Reports</h3></div><div id="employeeReportsList" class="loading"></div></div></div><div id="employee-requests" class="tab-content hidden"><div class="card"><div class="card-header"><h3 class="card-title">Make a Request</h3></div><form id="requestForm"><div class="grid grid-2"><div class="form-group"><label class="form-label" for="requestType">Request Type</label><select id="requestType" class="form-control" required><option value="">Select Type</option><option value="Transportation">Transportation Money</option><option value="Food">Food Money</option><option value="Off Day">Off Day</option><option value="Other">Other</option></select></div><div class="form-group"><label class="form-label" for="requestAmount">Amount (if applicable)</label><input type="number" id="requestAmount" class="form-control" min="0" step="0.01"></div></div><div class="form-group"><label class="form-label" for="requestDescription">Description / Reason</label><textarea id="requestDescription" class="form-control" rows="3" required></textarea></div><button type="submit" class="btn btn-primary">Submit Request</button></form></div><div class="card"><div class="card-header"><h3 class="card-title">My Requests</h3></div><div id="employeeRequestsList" class="loading"></div></div></div><div id="employee-trips" class="tab-content hidden"><div class="card"><div class="card-header"><h3 class="card-title">Schedule a Trip</h3></div><form id="tripForm"><div class="grid grid-2"><div class="form-group"><label class="form-label" for="tripDestination">Destination</label><input type="text" id="tripDestination" class="form-control" required></div><div class="form-group"><label class="form-label" for="tripDate">Date</label><input type="date" id="tripDate" class="form-control" required></div></div><div class="form-group"><label class="form-label" for="tripReason">Reason (Marketing/Technical)</label><textarea id="tripReason" class="form-control" rows="3" required></textarea></div><button type="submit" class="btn btn-primary">Schedule Trip</button></form></div><div class="card"><div class="card-header"><h3 class="card-title">My Trips</h3></div><div id="employeeTripsList" class="loading"></div></div></div></div><div id="adminDashboard" class="container hidden"><div class="nav-tabs"><button class="nav-tab active" data-tab="admin-overview">Overview</button><button class="nav-tab" data-tab="admin-reports">Reports</button><button class="nav-tab" data-tab="admin-requests">Requests</button><button class="nav-tab" data-tab="admin-trips">Trips</button><button class="nav-tab" data-tab="admin-attendance">Attendance</button><button class="nav-tab" data-tab="admin-users">Users</button></div><div id="admin-overview" class="tab-content"><div class="stats-grid"><div class="stat-card"><div class="stat-number" id="totalReports">0</div><div class="stat-label">Total Reports</div></div><div class="stat-card"><div class="stat-number" id="pendingRequests">0</div><div class="stat-label">Pending Requests</div></div><div class="stat-card"><div class="stat-number" id="pendingTrips">0</div><div class="stat-label">Pending Trips</div></div><div class="stat-card"><div class="stat-number" id="totalEmployees">0</div><div class="stat-label">Total Employees</div></div></div></div><div id="admin-reports" class="tab-content hidden"><div class="card"><div class="card-header"><h3 class="card-title">All Reports</h3></div><div id="allReportsList" class="loading"></div></div></div><div id="admin-requests" class="tab-content hidden"><div class="card"><div class="card-header"><h3 class="card-title">All Requests</h3></div><div id="allRequestsList" class="loading"></div></div></div><div id="admin-trips" class="tab-content hidden"><div class="card"><div class="card-header"><h3 class="card-title">All Trips</h3></div><div id="allTripsList" class="loading"></div></div></div><div id="admin-attendance" class="tab-content hidden"><div class="card"><div class="card-header"><h3 class="card-title">Attendance Overview</h3></div><div id="allAttendanceList" class="loading"></div></div></div><div id="admin-users" class="tab-content hidden"><div class="card"><div class="card-header"><h3 class="card-title">User Management</h3></div><button class="btn btn-primary" id="addUserBtn">Add New User</button><div id="usersList" class="loading"></div></div></div></div><div id="userModal" class="modal"><div class="modal-content"><div class="modal-header"><h3 id="userModalTitle">Add User</h3><span class="close" onclick="closeModal('userModal')">×</span></div><form id="userForm"><input type="hidden" id="userOriginalEmail"><div class="form-group"><label class="form-label" for="userName">Name</label><input type="text" id="userName" class="form-control" required></div><div class="form-group"><label class="form-label" for="userEmail">Email</label><input type="email" id="userEmail" class="form-control" required></div><div class="form-group"><label class="form-label" for="userPassword">Password (leave blank to not change)</label><input type="password" id="userPassword" class="form-control"></div><div class="form-group"><label class="form-label" for="userRole">Role</label><select id="userRole" class="form-control" required><option value="Employee">Employee</option><option value="Admin">Admin</option></select></div><button type="submit" class="btn btn-primary">Save User</button></form></div></div>
+    
+    <div id="loginScreen" class="container">
+        <div class="card" style="max-width: 400px; margin: 5rem auto;">
+            <div class="card-header"><h2 class="card-title">Company Activity Manager</h2></div>
+            <form id="loginForm">
+                <div class="form-group"><label class="form-label" for="email">Email</label><input type="email" id="email" class="form-control" required></div>
+                <div class="form-group"><label class="form-label" for="password">Password</label><input type="password" id="password" class="form-control" required></div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="mainApp" class="hidden">
+        <header class="header">
+            <div class="logo">Activity Manager</div>
+            <div class="header-actions">
+                <span id="userWelcome">Welcome, User</span>
+                <button class="theme-toggle" id="themeToggle">🌙</button>
+                <button class="btn btn-outline" id="logoutBtn">Logout</button>
+            </div>
+        </header>
+
+        <!-- Employee Dashboard -->
+        <div id="employeeDashboard" class="container hidden">
+            <div class="nav-tabs">
+                <button class="nav-tab active" data-tab="employee-overview">Overview</button>
+                <button class="nav-tab" data-tab="employee-reports">Reports</button>
+                <button class="nav-tab" data-tab="employee-requests">Requests</button>
+                <button class="nav-tab" data-tab="employee-trips">Trips</button>
+            </div>
+            <div id="employee-overview" class="tab-content">
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title">Attendance</h3></div>
+                    <div class="check-in-out">
+                        <button class="btn btn-success" id="checkInBtn">Check In</button>
+                        <button class="btn btn-warning" id="checkOutBtn">Check Out</button>
+                        <div id="attendanceStatus" style="font-weight: 500;"></div>
+                    </div>
+                    <div id="employeeAttendanceList" class="loading"></div>
+                </div>
+            </div>
+            <div id="employee-reports" class="tab-content hidden">
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title">Submit Daily Report</h3></div>
+                    <form id="reportForm">
+                        <div class="grid grid-2">
+                            <div class="form-group"><label class="form-label" for="reportDate">Date</label><input type="date" id="reportDate" class="form-control" required></div>
+                            <div class="form-group"><label class="form-label" for="activityType">Activity Type</label><select id="activityType" class="form-control" required><option value="">Select Activity</option><option value="Office">Office</option><option value="Marketing">Marketing</option><option value="Technical">Technical</option></select></div>
+                        </div>
+                        <div class="form-group"><label class="form-label" for="description">Description</label><textarea id="description" class="form-control" rows="4" required></textarea></div>
+                        <div class="form-group"><label class="form-label" for="photoUrl">Optional Photo (Google Drive Link)</label><input type="text" id="photoUrl" class="form-control" placeholder="Enter public Google Drive link"></div>
+                        <button type="submit" class="btn btn-primary">Submit Report</button>
+                    </form>
+                </div>
+                <div class="card"><div class="card-header"><h3 class="card-title">My Reports</h3></div><div id="employeeReportsList" class="loading"></div></div>
+            </div>
+            <div id="employee-requests" class="tab-content hidden">
+                 <div class="card">
+                    <div class="card-header"><h3 class="card-title">Make a Request</h3></div>
+                    <form id="requestForm">
+                        <div class="grid grid-2">
+                            <div class="form-group"><label class="form-label" for="requestType">Request Type</label><select id="requestType" class="form-control" required><option value="">Select Type</option><option value="Transportation">Transportation Money</option><option value="Food">Food Money</option><option value="Off Day">Off Day</option><option value="Other">Other</option></select></div>
+                            <div class="form-group"><label class="form-label" for="requestAmount">Amount (if applicable)</label><input type="number" id="requestAmount" class="form-control" min="0" step="0.01"></div>
+                        </div>
+                        <div class="form-group"><label class="form-label" for="requestDescription">Description / Reason</label><textarea id="requestDescription" class="form-control" rows="3" required></textarea></div>
+                        <button type="submit" class="btn btn-primary">Submit Request</button>
+                    </form>
+                </div>
+                <div class="card"><div class="card-header"><h3 class="card-title">My Requests</h3></div><div id="employeeRequestsList" class="loading"></div></div>
+            </div>
+            <div id="employee-trips" class="tab-content hidden">
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title">Schedule a Trip</h3></div>
+                    <form id="tripForm">
+                        <div class="grid grid-2">
+                            <div class="form-group"><label class="form-label" for="tripDestination">Destination</label><input type="text" id="tripDestination" class="form-control" required></div>
+                            <div class="form-group"><label class="form-label" for="tripDate">Date</label><input type="date" id="tripDate" class="form-control" required></div>
+                        </div>
+                        <div class="form-group"><label class="form-label" for="tripReason">Reason (Marketing/Technical)</label><textarea id="tripReason" class="form-control" rows="3" required></textarea></div>
+                        <button type="submit" class="btn btn-primary">Schedule Trip</button>
+                    </form>
+                </div>
+                <div class="card"><div class="card-header"><h3 class="card-title">My Trips</h3></div><div id="employeeTripsList" class="loading"></div></div>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="adminDashboard" class="container hidden">
+            <div class="nav-tabs">
+                <button class="nav-tab active" data-tab="admin-overview">Overview</button>
+                <button class="nav-tab" data-tab="admin-reports">Reports</button>
+                <button class="nav-tab" data-tab="admin-requests">Requests</button>
+                <button class="nav-tab" data-tab="admin-trips">Trips</button>
+                <button class="nav-tab" data-tab="admin-attendance">Attendance</button>
+                <button class="nav-tab" data-tab="admin-users">Users</button>
+            </div>
+            <div id="admin-overview" class="tab-content">
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-number" id="totalReports">0</div><div class="stat-label">Total Reports</div></div>
+                    <div class="stat-card"><div class="stat-number" id="pendingRequests">0</div><div class="stat-label">Pending Requests</div></div>
+                    <div class="stat-card"><div class="stat-number" id="pendingTrips">0</div><div class="stat-label">Pending Trips</div></div>
+                    <div class="stat-card"><div class="stat-number" id="totalEmployees">0</div><div class="stat-label">Total Employees</div></div>
+                </div>
+            </div>
+            <div id="admin-reports" class="tab-content hidden"><div class="card"><div class="card-header"><h3 class="card-title">All Reports</h3></div><div class="filters"><input type="text" id="reportSearch" class="form-control" placeholder="Search by employee or description..." style="max-width: 300px;"><button class="btn btn-secondary" id="exportReportsBtn">Export CSV</button></div><div id="allReportsList" class="loading"></div></div></div>
+            <div id="admin-requests" class="tab-content hidden"><div class="card"><div class="card-header"><h3 class="card-title">All Requests</h3></div><div id="allRequestsList" class="loading"></div></div></div>
+            <div id="admin-trips" class="tab-content hidden"><div class="card"><div class="card-header"><h3 class="card-title">All Trips</h3></div><div id="allTripsList" class="loading"></div></div></div>
+            <div id="admin-attendance" class="tab-content hidden"><div class="card"><div class="card-header"><h3 class="card-title">Attendance Overview</h3></div><div class="filters"><input type="date" id="attendanceDateFilter" class="form-control" style="max-width: 200px;"><button class="btn btn-secondary" id="exportAttendanceBtn">Export CSV</button></div><div id="allAttendanceList" class="loading"></div></div></div>
+            <div id="admin-users" class="tab-content hidden"><div class="card"><div class="card-header"><h3 class="card-title">User Management</h3></div><button class="btn btn-primary" id="addUserBtn">Add New User</button><div id="usersList" class="loading"></div></div></div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="userModal" class="modal"><div class="modal-content"><div class="modal-header"><h3 id="userModalTitle">Add User</h3><span class="close" onclick="closeModal('userModal')">×</span></div><form id="userForm"><input type="hidden" id="userOriginalEmail"><div class="form-group"><label class="form-label" for="userName">Name</label><input type="text" id="userName" class="form-control" required></div><div class="form-group"><label class="form-label" for="userEmail">Email</label><input type="email" id="userEmail" class="form-control" required></div><div class="form-group"><label class="form-label" for="userPassword">Password (leave blank to not change)</label><input type="password" id="userPassword" class="form-control"></div><div class="form-group"><label class="form-label" for="userRole">Role</label><select id="userRole" class="form-control" required><option value="Employee">Employee</option><option value="Admin">Admin</option></select></div><button type="submit" class="btn btn-primary">Save User</button></form></div></div>
 
     <script>
         // CONFIGURATION
         const CONFIG = {
-            API_URL: 'https://script.google.com/macros/s/AKfycbzpkiefPMyIZsSRylAUgMj4Jciosi5-7-jkd0bYiTY8Q44n_UKEj1vE8QUaSxFqtGaC/exec'
+            // IMPORTANT: PASTE THE URL FROM YOUR "NEW DEPLOYMENT" HERE
+            API_URL: 'https://script.google.com/macros/s/AKfycbw9ggEX1DKMZweDpc6s2ta1R_8C5ks6r3lztADSPPceF1a9K3XJY5JdC-qd8GRBln7v/exec'
         };
 
         // GLOBAL STATE
@@ -108,45 +219,39 @@
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('reportDate').value = today;
             document.getElementById('tripDate').value = today;
-            // Removed attendanceDateFilter reference as it's not in the simplified HTML
+            document.getElementById('attendanceDateFilter').value = today;
         }
 
-        // --- UNIVERSAL JSONP API CALL FUNCTION ---
-        function apiCall(action, data = {}) {
-            return new Promise((resolve, reject) => {
-                const callbackName = 'jsonpCallback_' + new Date().getTime() + '_' + Math.round(Math.random() * 1000);
-                
-                window[callbackName] = (response) => {
-                    document.body.removeChild(script);
-                    delete window[callbackName];
-                    resolve(response);
-                };
+        // --- UNIVERSAL FETCH API CALL FUNCTION ---
+        async function apiCall(action, data = {}) {
+            // Find the button in the form that might be submitting and disable it
+            const activeForm = document.activeElement ? document.activeElement.closest('form') : null;
+            const button = activeForm ? activeForm.querySelector('button[type="submit"]') : document.querySelector(`#${action}Btn`);
+            if (button) button.disabled = true;
 
-                const script = document.createElement('script');
-                const dataString = encodeURIComponent(JSON.stringify(data));
-
-                script.src = CONFIG.API_URL +
-                    `?action=${action}` +
-                    `&data=${dataString}` +
-                    `&callback=${callbackName}`;
-
-                script.onerror = () => {
-                    document.body.removeChild(script);
-                    delete window[callbackName];
-                    const error = new Error("API request failed (JSONP).");
-                    showToast(`Network or API Error: ${error.message}`, 'error');
-                    reject({ success: false, message: error.message });
-                };
-                
-                document.body.appendChild(script);
-            });
+            try {
+                const response = await fetch(CONFIG.API_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    cache: 'no-cache',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action, data }),
+                });
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error('API Call Error:', error);
+                showToast(`Network or API Error: ${error.message}`, 'error');
+                return { success: false, message: error.message };
+            } finally {
+                if (button) button.disabled = false;
+            }
         }
         
         // --- AUTHENTICATION ---
         async function handleLogin(e) {
             e.preventDefault();
             const loginButton = e.target.querySelector('button');
-            loginButton.disabled = true;
             loginButton.textContent = 'Logging in...';
 
             const data = {
@@ -156,7 +261,6 @@
 
             const response = await apiCall('login', data);
 
-            loginButton.disabled = false;
             loginButton.textContent = 'Login';
 
             if (response.success && response.user) {
@@ -167,7 +271,7 @@
                 showToast(response.message || 'Login failed', 'error');
             }
         }
-
+        
         // --- All other functions from the last full HTML file would go here ---
         // handleLogout, showDashboard, switchTab, loadDataForTab, all event listeners,
         // all data handlers, all renderers, and all utility functions. They all use
@@ -228,7 +332,7 @@
                 if (cacheKey) allDataCache[cacheKey] = response.data;
                 container.innerHTML = renderer(response.data);
             } else {
-                container.innerHTML = `<p style="color: var(--error-color);">Failed to load data.</p>`;
+                container.innerHTML = `<p style="color: var(--error-color);">Failed to load data. ${response.message || ''}</p>`;
             }
         }
 
@@ -244,6 +348,10 @@
             document.getElementById('checkOutBtn').addEventListener('click', async () => { const response = await apiCall('checkOut', { employee: currentUser.email, date: new Date().toISOString().split('T')[0], checkOut: new Date().toTimeString().split(' ')[0] }); if (response.success) { showToast(response.message, 'success'); updateAttendanceStatus(); loadEmployeeData(); } else { showToast(response.message, 'error'); } });
             document.getElementById('addUserBtn').addEventListener('click', () => showUserModal());
             document.getElementById('userForm').addEventListener('submit', handleUserSave);
+            document.getElementById('reportSearch').addEventListener('input', () => filterTable('reports', 'reportSearch', ['employee', 'description'], 'allReportsList', createReportsTable));
+            document.getElementById('attendanceDateFilter').addEventListener('input', () => filterTable('attendance', 'attendanceDateFilter', ['date'], 'allAttendanceList', createAttendanceTable));
+            document.getElementById('exportReportsBtn').addEventListener('click', () => exportToCSV(allDataCache.reports, 'reports.csv'));
+            document.getElementById('exportAttendanceBtn').addEventListener('click', () => exportToCSV(allDataCache.attendance, 'attendance.csv'));
         }
 
         async function handleFormSubmit(e, action, formDataExtractor, successCallback) { e.preventDefault(); const data = formDataExtractor(); const response = await apiCall(action, data); if (response.success) { showToast(response.message || `Submitted successfully`, 'success'); e.target.reset(); if (successCallback) successCallback(); } else { showToast(response.message || 'Submission failed', 'error'); } }
@@ -260,6 +368,8 @@
         createTripsTable = (data) => createTable(['Date', 'Employee', 'Destination', 'Status', 'Actions'], data, item => `<tr><td>${formatDate(item.date)}</td><td>${item.employee}</td><td>${item.destination}</td><td><span class="badge badge-${item.status.toLowerCase()}">${item.status}</span></td><td>${currentUser.role === 'Admin' && item.status === 'Pending' ? `<button class="btn btn-sm btn-success" onclick="handleStatusUpdate('trips', ${item.id}, 'Approved')">Approve</button> <button class="btn btn-sm btn-danger" onclick="handleStatusUpdate('trips', ${item.id}, 'Denied')">Deny</button>` : 'N/A'}</td></tr>`);
         createAttendanceTable = (data) => createTable(['Date', 'Employee', 'Check In', 'Check Out', 'Status'], data, item => `<tr><td>${formatDate(item.date)}</td><td>${item.employee}</td><td>${item.checkin || 'N/A'}</td><td>${item.checkout || 'N/A'}</td><td><span class="badge badge-${(item.status || 'absent').toLowerCase()}">${item.status || 'Absent'}</span></td></tr>`);
         createUsersTable = (data) => createTable(['Name', 'Email', 'Role', 'Actions'], data, item => `<tr><td>${item.name}</td><td>${item.email}</td><td><span class="badge badge-${item.role.toLowerCase()}">${item.role}</span></td><td><button class="btn btn-sm btn-secondary" onclick="showUserModal('${item.email}')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteUser('${item.email}')">Delete</button></td></tr>`);
+        function filterTable(cacheKey, inputId, searchKeys, elementId, renderer) { const searchTerm = document.getElementById(inputId).value.toLowerCase(); const data = allDataCache[cacheKey] || []; document.getElementById(elementId).innerHTML = renderer(data.filter(item => searchKeys.some(key => item[key] && item[key].toString().toLowerCase().includes(searchTerm)))); }
+        function exportToCSV(data, filename) { if (!data || data.length === 0) return showToast('No data to export', 'error'); const headers = Object.keys(data[0]); const csvRows = [headers.join(','), ...data.map(row => headers.map(header => `"${(('' + row[header]).replace(/"/g, '""'))}"`).join(','))]; const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' }); const a = document.createElement('a'); a.href = window.URL.createObjectURL(blob); a.download = filename; a.click(); }
         function showToast(message, type = 'success') { const container = document.getElementById('toast-container'); const toast = document.createElement('div'); toast.className = `toast toast-${type}`; toast.textContent = message; container.appendChild(toast); setTimeout(() => toast.classList.add('show'), 10); setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000); }
         function toggleTheme() { const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', newTheme); localStorage.setItem('theme', newTheme); document.getElementById('themeToggle').textContent = newTheme === 'dark' ? '☀️' : '🌙'; }
         function showModal(modalId) { document.getElementById(modalId).style.display = 'flex'; }
